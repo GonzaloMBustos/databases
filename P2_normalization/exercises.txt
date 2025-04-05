@@ -1,0 +1,3 @@
+1.1)
+a) W -> Y, X -> Z |- WX -> Y
+Por aumento, si W -> Y => para cualquier Q, WQ -> Y, en particular con Q = X
