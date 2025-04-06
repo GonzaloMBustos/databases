@@ -2,9 +2,16 @@ SELECT * FROM Customer;
 
 -- EJERCICIOS PRACTICA DE LENGUAJES DE CONSULTA
 -- 2.1)
+-- a)
 SELECT FirstName, LastName FROM Customer WHERE Country = 'Brazil';
+
+-- b)
 SELECT c.FirstName, i.InvoiceId, i.InvoiceDate FROM Invoice i INNER JOIN Customer c ON i.CustomerId = c.CustomerId;
+
+-- c)
 SELECT t.Name, ar.Name FROM (Track t INNER JOIN Album al ON t.AlbumId = al.AlbumId) INNER JOIN Artist ar ON ar.ArtistId = al.ArtistId;
+
+-- e)
 SELECT pl.Name playlistName FROM (Playlist pl INNER JOIN PlaylistTrack pltrack ON pl.PlaylistId = pltrack.PlaylistId) 
     INNER JOIN Track tr ON tr.TrackId = pltrack.TrackId
     INNER JOIN Album al ON tr.AlbumId = al.AlbumId
@@ -13,11 +20,13 @@ SELECT pl.Name playlistName FROM (Playlist pl INNER JOIN PlaylistTrack pltrack O
     GROUP BY pl.Name
     HAVING COUNT(*) > 10;
 
+-- f)
 SELECT pl.Name, COUNT(DISTINCT al.AlbumId) FROM (Playlist pl INNER JOIN PlaylistTrack pltrack ON pl.PlaylistId = pltrack.PlaylistId) 
     INNER JOIN Track tr ON tr.TrackId = pltrack.TrackId
     INNER JOIN Album al ON tr.AlbumId = al.AlbumId
     GROUP BY pl.Name;
 
+-- g)
 SELECT employee.FirstName, employee.LastName FROM Customer customer
     INNER JOIN Employee employee ON customer.SupportRepId = employee.EmployeeId
     INNER JOIN Invoice invoice ON customer.CustomerId = invoice.CustomerId
@@ -25,6 +34,49 @@ SELECT employee.FirstName, employee.LastName FROM Customer customer
     WHERE DATEDIFF(YEAR, employee.BirthDate, GETDATE()) >= 25
     GROUP BY employee.FirstName, employee.LastName
     HAVING COUNT(DISTINCT invoiceLine.InvoiceLineId) > 10;
+
+-- h)
+SELECT c.FirstName, i.InvoiceId, i.InvoiceDate FROM Invoice i RIGHT OUTER JOIN Customer c ON i.CustomerId = c.CustomerId;
+
+-- i)
+SELECT e.FirstName, e.LastName FROM Employee e
+    INNER JOIN Customer c ON c.SupportRepId = e.EmployeeId
+    INNER JOIN Invoice i ON c.CustomerId = i.CustomerId
+    GROUP BY e.FirstName, e.LastName, e.EmployeeId, c.CustomerId
+    HAVING COUNT(DISTINCT i.InvoiceId) > 10;
+
+-- si interprete bien el ejercicio, quieren todos los empleados que tienen clientes con mas de 10 facturas, pero no existen clientes con mas de 10 facturas
+SELECT c.CustomerId FROM Customer c INNER JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY c.CustomerId HAVING COUNT(i.InvoiceId) > 10;
+
+-- j)
+SELECT e.FirstName nombre_empleado, e.LastName apellido_empleado, b.FirstName nombre_jefe, b.LastName apellido_jefe FROM Employee e LEFT OUTER JOIN Employee b ON e.ReportsTo = b.EmployeeId;
+
+-- k) ya lo habia hecho sin que falten empleados
+
+-- l) mira, como la quantity siempre es 1 por cada invoice line, no hace falta que sume cada line, pero deberia hacerlo mas que nada para practicar cosas dificiles
+-- SELECT c.FirstName, c.LastName, AVG(COUNT(il.InvoiceLineId)) FROM Customer c
+--     INNER JOIN Invoice i ON c.CustomerId = i.CustomerId
+--     INNER JOIN InvoiceLine il ON il.InvoiceId = i.InvoiceId
+--     GROUP BY c.FirstName, c.LastName, c.CustomerId;
+-- LO DE ACA ARRIBA ^ ESTA MAL, TENGO QUE USAR SUBQUERIES PARA RESOLVERLO JE
+
+SELECT c.FirstName, c.LastName, AVG(TracksPerInvoiceCount.tracksPerInvoice) FROM Customer c
+    INNER JOIN (
+        SELECT i.CustomerId, COUNT(DISTINCT il.InvoiceLineId) tracksPerInvoice FROM Invoice i INNER JOIN InvoiceLine il ON i.InvoiceId = il.InvoiceId GROUP BY i.CustomerId, i.InvoiceId
+    ) AS TracksPerInvoiceCount ON TracksPerInvoiceCount.CustomerId = c.CustomerId GROUP BY c.FirstName, c.LastName, c.CustomerId;
+
+-- m) ya estoy re pajoso mal
+-- voy a tener que CONTAR asi que fija un COUNT
+-- los tracks de genero Rock comprados por los clientes que soporta cada empleado
+-- necesito Employee, Customer, Invoice, InvoiceLine, Track y Genre
+SELECT e.FirstName, e.LastName, COUNT(DISTINCT tr.TrackId) FROM Employee e
+    INNER JOIN Customer c ON e.EmployeeId = c.SupportRepId
+    INNER JOIN Invoice i ON i.CustomerId = c.CustomerId
+    INNER JOIN InvoiceLine il ON il.InvoiceId = i.InvoiceId
+    INNER JOIN Track tr ON tr.TrackId = il.TrackId
+    INNER JOIN Genre gen ON tr.GenreId = gen.GenreId
+    WHERE gen.Name = 'Rock'
+    GROUP BY e.FirstName, e.LastName, e.EmployeeId;
 
 -- EJERCICIOS EN CLASE
 SELECT Track.Name temuko, Genre.Name generoso, MediaType.Name mp3 from Track inner join Genre ON Track.GenreId = Genre.GenreId inner join MediaType on Track.MediaTypeId = MediaType.MediaTypeId;
