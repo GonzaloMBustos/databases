@@ -78,6 +78,15 @@ SELECT e.FirstName, e.LastName, COUNT(DISTINCT tr.TrackId) FROM Employee e
     WHERE gen.Name = 'Rock'
     GROUP BY e.FirstName, e.LastName, e.EmployeeId;
 
+SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (
+	SELECT pl2.PlaylistId, pl2.Name FROM Playlist pl2 INNER JOIN PlaylistTrack pltr ON pl2.PlaylistId = pltr.PLaylistId
+	INNER JOIN Track tr ON tr.TrackId = pltr.TrackId
+	INNER JOIN Album al ON al.AlbumId = tr.AlbumId
+	INNER JOIN Artist ar ON ar.ArtistId = al.ArtistId
+	WHERE ar.Name = 'Black Sabbath' OR ar.Name = 'Chico Buarque'
+	GROUP BY pl2.PlaylistId, pl2.Name
+);
+
 -- EJERCICIOS EN CLASE
 SELECT Track.Name temuko, Genre.Name generoso, MediaType.Name mp3 from Track inner join Genre ON Track.GenreId = Genre.GenreId inner join MediaType on Track.MediaTypeId = MediaType.MediaTypeId;
 
