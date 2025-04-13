@@ -78,6 +78,24 @@ SELECT e.FirstName, e.LastName, COUNT(DISTINCT tr.TrackId) FROM Employee e
     WHERE gen.Name = 'Rock'
     GROUP BY e.FirstName, e.LastName, e.EmployeeId;
 
+-- 2.3)
+-- a)
+SELECT al.Title FROM Album al INNER JOIN Track tr ON al.AlbumId = tr.AlbumId INNER JOIN PlaylistTrack pltr ON pltr.TrackId = tr.TrackId INNER JOIN Playlist pl ON pl.PlaylistId = pltr.PlaylistId
+GROUP BY al.AlbumId, al.Title HAVING COUNT(DISTINCT pl.PlaylistId) = (SELECT COUNT(*) FROM Playlist);
+
+-- b)
+
+WITH PlaylistCountByAlbum AS (
+    SELECT al.AlbumId, al.ArtistId, COUNT(DISTINCT pl.PlaylistId) count FROM Album al
+        INNER JOIN Track tr ON al.AlbumId = tr.AlbumId
+        INNER JOIN PlaylistTrack pltr ON pltr.TrackId = tr.TrackId
+        INNER JOIN Playlist pl ON pl.PlaylistId = pltr.PlaylistId
+    GROUP BY al.AlbumId, al.ArtistId)
+    SELECT ar.Name, plcba.count FROM PlaylistCountByAlbum plcba INNER JOIN Artist ar ON plcba.ArtistId = ar.ArtistId WHERE plcba.count = (SELECT MIN(count) FROM PlaylistCountByAlbum) GROUP BY ar.ArtistId, ar.Name, plcba.count;
+
+-- 2.4)
+SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (SELECT Playlist.PlaylistId FROM Playlist INNER JOIN PlaylistTrack);
+
 SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (
 	SELECT pl2.PlaylistId, pl2.Name FROM Playlist pl2 INNER JOIN PlaylistTrack pltr ON pl2.PlaylistId = pltr.PLaylistId
 	INNER JOIN Track tr ON tr.TrackId = pltr.TrackId
@@ -92,7 +110,7 @@ SELECT Track.Name temuko, Genre.Name generoso, MediaType.Name mp3 from Track inn
 
 SELECT t.Name, g.Name, m.Name from Track t, Genre g, MediaType m WHERE t.GenreId = g.GenreId AND t.MediaTypeId = m.MediaTypeId;
 
-SELECT g.name, COUNT() from Genre g, Track t WHERE g.GenreId = t.GenreId GROUP BY t.GenreId, g.Name; /*ESTA MAL, LA CORRECTA ESTA ABAJO*/
+SELECT g.name, COUNT(*) from Genre g, Track t WHERE g.GenreId = t.GenreId GROUP BY t.GenreId, g.Name; /*ESTA MAL, LA CORRECTA ESTA ABAJO*/
 
 SELECT g.name, COUNT(t.TrackId) from Genre g LEFT JOIN Track t on g.GenreId = t.GenreId GROUP BY t.GenreId, g.Name;
 
