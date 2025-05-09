@@ -97,12 +97,12 @@ WITH PlaylistCountByAlbum AS (
 SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (SELECT Playlist.PlaylistId FROM Playlist INNER JOIN PlaylistTrack);
 
 SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (
-	SELECT pl2.PlaylistId, pl2.Name FROM Playlist pl2 INNER JOIN PlaylistTrack pltr ON pl2.PlaylistId = pltr.PLaylistId
+	SELECT pl2.PlaylistId FROM Playlist pl2 INNER JOIN PlaylistTrack pltr ON pl2.PlaylistId = pltr.PLaylistId
 	INNER JOIN Track tr ON tr.TrackId = pltr.TrackId
 	INNER JOIN Album al ON al.AlbumId = tr.AlbumId
 	INNER JOIN Artist ar ON ar.ArtistId = al.ArtistId
 	WHERE ar.Name = 'Black Sabbath' OR ar.Name = 'Chico Buarque'
-	GROUP BY pl2.PlaylistId, pl2.Name
+	GROUP BY pl2.PlaylistId
 );
 
 -- EJERCICIOS EN CLASE
