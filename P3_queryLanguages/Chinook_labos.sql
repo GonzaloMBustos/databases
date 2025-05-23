@@ -71,7 +71,7 @@ INNER JOIN InvoiceLine il ON t.TrackId = il.TrackId
 select i.billing_country, date_part('year',i.invoice_date),
 sum(i.total)
 from invoice i
-GROUP BY i.billing_country, date_part('year',i.invoice_date)
+GROUP BY i.billing_country, date_part('year',i.invoice_date);
 -- 2. Cuáles son los clientes que realizaron más compras
 with count_invoice_by_customer as (
  select c.customer_id, count(i.invoice_id) as count_invoice
