@@ -94,7 +94,7 @@ WITH PlaylistCountByAlbum AS (
     SELECT ar.Name, plcba.count FROM PlaylistCountByAlbum plcba INNER JOIN Artist ar ON plcba.ArtistId = ar.ArtistId WHERE plcba.count = (SELECT MIN(count) FROM PlaylistCountByAlbum) GROUP BY ar.ArtistId, ar.Name, plcba.count;
 
 -- 2.4)
-SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (SELECT Playlist.PlaylistId FROM Playlist INNER JOIN PlaylistTrack);
+-- SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (SELECT Playlist.PlaylistId FROM Playlist INNER JOIN PlaylistTrack);
 
 SELECT pl.Name FROM Playlist pl WHERE pl.PlaylistId NOT IN (
 	SELECT pl2.PlaylistId FROM Playlist pl2 INNER JOIN PlaylistTrack pltr ON pl2.PlaylistId = pltr.PLaylistId
